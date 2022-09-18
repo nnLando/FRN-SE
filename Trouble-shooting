@@ -1,0 +1,40 @@
+exec sp_whoisactive @find_block_leaders = 1
+
+DBCC OPENTRAN
+
+SELECT * FROM sys.sysprocesses WHERE open_tran = 1
+
+DBCC CHECKDB
+
+SELECT
+trans.session_id AS [SESSION ID],
+ESes.host_name AS [HOST NAME],login_name AS [Login NAME],
+trans.transaction_id AS [TRANSACTION ID],
+tas.name AS [TRANSACTION NAME],tas.transaction_begin_time AS [TRANSACTION
+BEGIN TIME],
+tds.database_id AS [DATABASE ID],DBs.name AS [DATABASE NAME]
+FROM sys.dm_tran_active_transactions tas
+JOIN sys.dm_tran_session_transactions trans
+ON (trans.transaction_id=tas.transaction_id)
+LEFT OUTER JOIN sys.dm_tran_database_transactions tds
+ON (tas.transaction_id = tds.transaction_id )
+LEFT OUTER JOIN sys.databases AS DBs
+ON tds.database_id = DBs.database_id
+LEFT OUTER JOIN sys.dm_exec_sessions AS ESes
+ON trans.session_id = ESes.session_id
+WHERE ESes.session_id IS NOT NULL
+
+Checkpoint 5
+
+-- SELECT TSQL.text, s.status, s.*,c.*,tsu.*,t.*,r.* FROM sys.dm_exec_sessions s LEFT JOIN sys.dm_exec_connections c ON s.session_id = c.session_id LEFT JOIN sys.dm_db_task_space_usage tsu ON tsu.session_id = s.session_id LEFT JOIN sys.dm_os_tasks t ON t.session_id = tsu.session_id AND t.request_id = tsu.request_id LEFT JOIN sys.dm_exec_requests r ON r.session_id = tsu.session_id AND r.request_id = tsu.request_id OUTER APPLY sys.dm_exec_sql_text(r.sql_handle) TSQL where login_name='aiuserRO'
+
+
+-- select blocking_session_id, count(1) cnt
+from sys.dm_exec_requests
+where blocking_session_id > 0
+group by blocking_session_id
+order by 2 desc
+
+-- SELECT cntr_value
+FROM sys.dm_os_performance_counters
+WHERE counter_name = 'User Connections';
