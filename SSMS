@@ -1,9 +1,0 @@
-USE [master]
-go
-
-RESTORE DATABASE [Flyway_KSIProd] FROM  DISK = N'S:\BackUp\Flyway_KSIProd.bak' WITH  FILE = 1,  
-	MOVE N'Schema_KSIProd' TO N'S:\UserDB\Flyway_KSIProd_old.mdf',  
-	MOVE N'Schema_KSIProd_log' TO N'S:\UserDB\Flyway_KSIProd_log.ldf',  
-	NOUNLOAD,  STATS = 5
-
-GO
